@@ -5,7 +5,7 @@ import { supabase } from "@/services/supabaseClient";
 import Image from "next/image";
 import React from "react";
 
-function Login() {
+export default function Login() {
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google"
@@ -43,6 +43,4 @@ function Login() {
       </div>
     </div>
   );
-}
-
-export default Login;
+} 
