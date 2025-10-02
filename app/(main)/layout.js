@@ -1,12 +1,14 @@
-import React from 'react'
-import DashboardProvider from './provider'
+import React from "react";
+import DashboardProvider from "./provider";
 
-export default function DashboardLayout({children}) {
+export default function DashboardLayout({ children }) {
   return (
     <div>
-        <DashboardProvider>
-{children}
-        </DashboardProvider>
+      <DashboardProvider>
+        <div className="p-10">
+        {children}
+        </div>
+      </DashboardProvider>
     </div>
-  )
+  );
 }
