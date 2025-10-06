@@ -16,7 +16,6 @@ export default function Provider({ children }) {
       //check if user already exist
 
       let { data: Users, error } = await supabase.from("Users").select("*").eq('email', user?.email);
-      console.log(Users)
 
       //if not create new user
       if(Users?.length == 0){

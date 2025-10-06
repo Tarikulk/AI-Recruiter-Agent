@@ -1,12 +1,19 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
-import { Loader2Icon } from "lucide-react";
+import { Loader2, Loader2Icon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import QuestionListContainer from "./QuestionListContainer";
+import { supabase } from "@/services/supabaseClient";
+import { useUser } from "@/app/provider";
+import { v4 as uuidv4 } from "uuid";
 
-export default function QuestionList({ formData }) {
+export default function QuestionList({ formData, onCreateLink }) {
   const [loading, setLoading] = useState(false);
   const [questionList, setQuestionList] = useState();
+  const [saveLoading, setSaveLoading] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
     if (formData) {
@@ -20,17 +27,17 @@ export default function QuestionList({ formData }) {
       const result = await axios.post("/api/ai-model", {
         ...formData,
       });
-  
+
       // The AI response structure is { role, content }
       const content = result.data.content;
-  
+
       // Clean the markdown formatting
       const cleaned = content.replace(/```json\n?/, "").replace(/```/, "");
-  
+
       // Parse JSON and extract questions
       const parsed = JSON.parse(cleaned);
       setQuestionList(parsed.interviewQuestions);
-  
+
       setLoading(false);
     } catch (error) {
       console.error("Error parsing AI response:", error);
@@ -38,7 +45,28 @@ export default function QuestionList({ formData }) {
       setLoading(false);
     }
   };
-  
+
+  const onFinish = async () => {
+    setSaveLoading(true);
+    const interview_id = uuidv4();
+
+    const { data, error } = await supabase
+      .from("Interviews")
+      .insert([
+        {
+          ...formData,
+          questionList: questionList,
+          userEmail: user?.email,
+          interview_id: interview_id,
+        },
+      ])
+      .select();
+
+    setSaveLoading(false);
+
+    onCreateLink({ interview_id });
+    console.log(data);
+  };
 
   return (
     <div>
@@ -55,15 +83,20 @@ export default function QuestionList({ formData }) {
       )}
 
       {questionList?.length > 0 && (
-        <div className="p-5 border border-gray-300 rounded-2xl">
-          {questionList.map((item, index) => (
-            <div key={index} className="p-3 border border-gray-200">
-              <h2 className="font-medium">{item.question}</h2>
-              <h2>Type: {item?.type}</h2>
-            </div>
-          ))}
+        <div>
+          <QuestionListContainer questionList={questionList} />
         </div>
       )}
+
+      <div className="flex justify-end m-10">
+        <Button onClick={() => onFinish()} disabled={saveLoading}>
+          {saveLoading ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <span>Create interview link & Finish</span>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

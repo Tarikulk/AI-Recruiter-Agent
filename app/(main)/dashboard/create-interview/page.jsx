@@ -6,11 +6,13 @@ import React, { useState } from "react";
 import FormContainer from "./_components/FormContainer";
 import QuestionList from "./_components/QuestionList";
 import { toast } from "sonner";
+import InterviewLink from "./_components/InterviewLink";
 
 export default function CreateInterview() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState();
+  const [interviewId, setInterviewId] = useState();
 
   console.log("formdata", formData);
 
@@ -21,12 +23,22 @@ export default function CreateInterview() {
     }));
   };
 
-  const OnGoToNext = () =>{
-    if(!formData?.jobPosition || !formData?.jobDescription || !formData?.duration || !formData?.type){
-        toast("Please enter all details")
-        return;
+  const OnGoToNext = () => {
+    if (
+      !formData?.jobPosition ||
+      !formData?.jobDescription ||
+      !formData?.duration ||
+      !formData?.type
+    ) {
+      toast("Please enter all details");
+      return;
     }
-    setStep(step + 1)
+    setStep(step + 1);
+  };
+  
+  const onCreateLink = (interview_id) =>{
+    setInterviewId(interview_id);
+    setStep(step + 1);
   }
 
   return (
@@ -37,10 +49,14 @@ export default function CreateInterview() {
       </div>
       <Progress value={step * 33.33} className="my-5" />
       {step == 1 ? (
-        <FormContainer onHandleInputChange={onHandleInputChange} GoToNext={() => OnGoToNext()} />
+        <FormContainer
+          onHandleInputChange={onHandleInputChange}
+          GoToNext={() => OnGoToNext()}
+        />
       ) : step == 2 ? (
-        <QuestionList formData={formData} />
-      ) : null}
+        <QuestionList formData={formData} onCreateLink={(interview_id)=> onCreateLink(interview_id)}/>
+      ) : null}{" "}
+      :{step === 3 ? <InterviewLink interview_id={interviewId} formData={formData} /> : null}
     </div>
   );
 }
