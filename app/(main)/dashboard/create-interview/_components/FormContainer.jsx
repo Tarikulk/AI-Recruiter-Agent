@@ -12,7 +12,7 @@ import { InterviewType } from "@/services/Constant";
 import { ArrowRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-export default function FormContainer({ onHandleInputChange }) {
+export default function FormContainer({ onHandleInputChange, GoToNext }) {
   const [interviewType, setInterviewType] = useState([]);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function FormContainer({ onHandleInputChange }) {
     }
   }, [interviewType]);
 
-  
+
   const AddInterviewType = (title) => {
     if (!interviewType.includes(title)) {
       setInterviewType((prev) => [...prev, title]);
@@ -95,9 +95,11 @@ export default function FormContainer({ onHandleInputChange }) {
         </div>
       </div>
 
+      <div className="flex justify-end" onClick={() => GoToNext()}>
       <Button className="mt-5 flex justify-end">
         Generate Question <ArrowRight />
       </Button>
+      </div>
     </div>
   );
 }
