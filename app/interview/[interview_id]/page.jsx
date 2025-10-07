@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import InterviewHeader from "../_components/InterviewHeader";
 import Image from "next/image";
-import { Clock, Video } from "lucide-react";
+import { Clock, LoaderIcon, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/services/supabaseClient";
 import { toast } from "sonner";
+import { InterViewDataContext } from "@/context/InterviewDataContext";
+import Vapi from "@vapi-ai/web";
 
 export default function Interview() {
   const { interview_id } = useParams();
@@ -16,6 +18,9 @@ export default function Interview() {
   const [interviewData, setInterviewData] = useState();
   const [userName, setUserName] = useState();
   const [loading, setLoading] = useState(false);
+  const { interviewInfo, setInterviewInfo } = useContext(InterViewDataContext);
+  const [userEmail, setUserEmail] = useState();
+  const router = useRouter();
 
   useEffect(() => {
     if (interview_id) {
@@ -37,8 +42,31 @@ export default function Interview() {
     } else {
       setInterviewData(Interviews[0]);
       setLoading(false);
-      console.log("Fetched interview data:", Interviews);
     }
+  };
+
+  const onJoinInterview = async () => {
+    setLoading(true);
+    const { data: Interviews, error } = await supabase
+      .from("Interviews")
+      .select("*")
+      .eq("interview_id", interview_id);
+
+    if (error || !Interviews?.length) {
+      toast("Unable to fetch interview data");
+      setLoading(false);
+      return;
+    }
+
+    setInterviewInfo({
+      userName: userName,
+      userEmail: userEmail,
+      interviewData: Interviews[0],
+    });
+
+    router.push("/interview/" + interview_id + "/start");
+    setLoading(false);
+    
   };
 
   return (
@@ -69,7 +97,18 @@ export default function Interview() {
 
         <div className="w-full">
           <h2>Enter your full name</h2>
-          <Input placeholder="e.g. John Smith" onChange={(e)=>setUserName(event.target.value)} />
+          <Input
+            placeholder="e.g. John Smith"
+            onChange={(e) => setUserName(event.target.value)}
+          />
+        </div>
+
+        <div className="w-full">
+          <h2>Enter your Email</h2>
+          <Input
+            placeholder="e.g. john@gmail.com"
+            onChange={(e) => setUserEmail(event.target.value)}
+          />
         </div>
 
         <div>
@@ -80,8 +119,13 @@ export default function Interview() {
             <li>Lorem ipsum dolor sit amet.</li>
           </ul>
 
-          <Button className="mt-5 w-full" disabled={loading || !userName}>
-            <Video /> Join Interview
+          <Button
+            onClick={() => onJoinInterview()}
+            className="mt-5 w-full"
+            disabled={loading || !userName}
+          >
+            <Video /> {loading && <LoaderIcon className="animate-spin" />} Join
+            Interview
           </Button>
         </div>
       </div>
