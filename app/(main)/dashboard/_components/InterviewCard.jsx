@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import moment from "moment";
+import Link from "next/link";
 import React from "react";
 import { toast } from "sonner";
 
@@ -31,7 +32,7 @@ export default function InterviewCard({ interview, viewDetail=false }) {
         !viewDetail ?  <div className="flex gap-3">
         <Button className={"w-1/2"} onClick={copyLink}>Copy Link</Button>
         <Button className={"w-1/2"} onClick={onSend}>Send</Button>
-      </div>: <Button className={"w-full"}>View Detail</Button>
+      </div>: <Link href={"/scheduled-interview/"+interview?.interview_id+"/details"}><Button className={"w-full"}>View Detail</Button></Link>
      }
     </div>
   );
