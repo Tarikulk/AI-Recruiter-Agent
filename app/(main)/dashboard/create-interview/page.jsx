@@ -7,12 +7,14 @@ import FormContainer from "./_components/FormContainer";
 import QuestionList from "./_components/QuestionList";
 import { toast } from "sonner";
 import InterviewLink from "./_components/InterviewLink";
+import { useUser } from "@/app/provider";
 
 export default function CreateInterview() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState();
   const [interviewId, setInterviewId] = useState();
+  const {user} = useUser();
 
   console.log("formdata", formData);
 
@@ -24,6 +26,10 @@ export default function CreateInterview() {
   };
 
   const OnGoToNext = () => {
+    if(user?.credits <= 0 ){
+      toast("Please Add Credits")
+      return;
+    }
     if (
       !formData?.jobPosition ||
       !formData?.jobDescription ||
