@@ -187,7 +187,7 @@ export default function Start() {
 
       console.log("✅ Feedback saved:", data);
       toast.success("Feedback saved successfully!");
-      router.push(`/interview/${interview_id}/completed`);
+      router.replace(`/interview/${interview_id}/completed`);
     } catch (err) {
       console.error("Feedback generation error:", err);
       toast.error("Failed to generate feedback.");

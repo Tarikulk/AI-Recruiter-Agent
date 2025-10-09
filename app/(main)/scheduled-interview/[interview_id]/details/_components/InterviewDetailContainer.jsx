@@ -43,7 +43,7 @@ export default function InterviewDetailContainer({ interviewDetail }) {
 
         <div className="grid grid-cols-2 gap-5 mt-2">
           {
-            interviewDetail?.questionList.map((item, index) =>(
+            interviewDetail?.questionList?.map((item, index) =>(
               <h2 className="text-xs" key={index}>{index + 1}. {item?.question }</h2>
             ))
           }
