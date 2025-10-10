@@ -17,7 +17,22 @@ export default function Start() {
   const [conversation, setConversation] = useState(null);
   const { interview_id } = useParams();
   const [loading, setLoading] = useState(false);
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+  const timerRef = useRef(null);
   const router = useRouter();
+
+    // Format HH:MM:SS
+    const formatTime = (secs) => {
+      const hrs = Math.floor(secs / 3600)
+        .toString()
+        .padStart(2, "0");
+      const mins = Math.floor((secs % 3600) / 60)
+        .toString()
+        .padStart(2, "0");
+      const secsDisplay = (secs % 60).toString().padStart(2, "0");
+      return `${hrs}:${mins}:${secsDisplay}`;
+    };
 
   // ✅ Initialize Vapi once
   useEffect(() => {
@@ -30,7 +45,10 @@ export default function Start() {
       }
     });
 
-    vapi.current.on("call-start", () => toast("📞 Call Connected..."));
+    vapi.current.on("call-start", () => {
+      toast("📞 Call Connected...")
+      startTimer();
+    });
     vapi.current.on("speech-start", () => setActiveUser(false));
     vapi.current.on("speech-end", () => setActiveUser(true));
     vapi.current.on("call-end", () => {
@@ -49,6 +67,24 @@ export default function Start() {
       startCall();
     }
   }, [interviewInfo]);
+
+    // ✅ Timer Controls
+    const startTimer = () => {
+      if (!timerRunning) {
+        setTimerRunning(true);
+        timerRef.current = setInterval(() => {
+          setSecondsElapsed((prev) => prev + 1);
+        }, 1000);
+      }
+    };
+  
+    const stopTimer = () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setTimerRunning(false);
+    };
 
   // ✅ Start the AI Interview
   const startCall = () => {
@@ -115,10 +151,12 @@ export default function Start() {
     vapi.current?.start(assistantOptions);
   };
 
+
   // ✅ Stop the call and start feedback
   const stopInterview = async () => {
     setLoading(true);
     try {
+      stopTimer();
       await vapi.current?.stop();
       await generateFeedback();
       toast("Ending interview...");
@@ -197,61 +235,79 @@ export default function Start() {
   };
 
   return (
-    <div className="p-20 lg:px-40">
-      {/* Header */}
-      <div className="flex justify-between">
-        <h2 className="font-bold">AI Interview Session</h2>
-        <span className="flex gap-3">
-          <Timer /> 12:23:22
-        </span>
-      </div>
+<div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 p-8 md:p-20 lg:px-40 transition-all duration-300">
+  {/* Header */}
+  <div className="flex justify-between items-center mb-10 border-b border-gray-200 pb-4">
+    <h2 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">
+      AI Interview Session
+    </h2>
+    <span className="flex items-center gap-2 text-gray-600 font-medium bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+    <Timer className="w-5 h-5 text-blue-600" /> {formatTime(secondsElapsed)}
+    </span>
+  </div>
 
-      {/* Interview avatars */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
-        {/* AI Side */}
-        <div className="flex flex-col gap-3 justify-center items-center p-40 bg-gray-100 rounded-2xl border">
-          <div className="relative">
-            {!activeUser && (
-              <span className="absolute inset-0 rounded-full bg-blue-500 opacity-75 animate-ping" />
-            )}
-            <Image
-              src="/female.jpeg"
-              alt="AI Recruiter"
-              height={100}
-              width={100}
-              className="w-[60px] h-[60px] rounded-full"
-            />
-          </div>
-          <h2>AI Recruiter</h2>
-        </div>
-
-        {/* User Side */}
-        <div className="flex flex-col gap-3 justify-center items-center p-40 bg-gray-100 rounded-2xl border">
-          <div className="relative">
-            {activeUser && (
-              <span className="absolute inset-0 rounded-full bg-blue-500 opacity-75 animate-ping" />
-            )}
-            <h2 className="text-2xl bg-primary text-white rounded-full px-3">
-              {interviewInfo?.userName?.[0]}
-            </h2>
-            <h2>{interviewInfo?.userName}</h2>
-          </div>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="flex gap-10 justify-center items-center mt-7">
-        <Mic className="h-12 w-12 p-3 bg-gray-300 rounded-full" />
-
-        {loading ? (
-          <Loader2Icon className="h-12 w-12 text-red-500 animate-spin" />
-        ) : (
-          <Phone
-            onClick={stopInterview}
-            className="h-12 w-12 p-3 text-white bg-red-500 rounded-full cursor-pointer hover:opacity-80 transition"
-          />
+  {/* Interview Avatars */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-5">
+    {/* AI Side */}
+    <div className="flex flex-col gap-4 justify-center items-center p-16 bg-white rounded-3xl shadow-lg border border-gray-100 relative hover:shadow-xl transition-shadow duration-300">
+      <div className="relative">
+        {!activeUser && (
+          <span className="absolute inset-0 rounded-full bg-blue-400 opacity-75 animate-ping" />
         )}
+        <Image
+          src="/female.jpeg"
+          alt="AI Recruiter"
+          height={100}
+          width={100}
+          className="w-[80px] h-[80px] rounded-full border-4 border-blue-100 shadow-md"
+        />
+      </div>
+      <h2 className="text-lg font-semibold text-gray-700">AI Recruiter</h2>
+      <p className="text-sm text-gray-500">Your virtual interviewer</p>
+    </div>
+
+    {/* User Side */}
+    <div className="flex flex-col gap-4 justify-center items-center p-16 bg-white rounded-3xl shadow-lg border border-gray-100 relative hover:shadow-xl transition-shadow duration-300">
+      <div className="relative">
+        {activeUser && (
+          <span className="absolute inset-0 rounded-full bg-blue-500 opacity-75 animate-ping" />
+        )}
+        <div className="flex flex-col items-center">
+          <div className="flex justify-center items-center w-[80px] h-[80px] rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-2xl font-bold shadow-md">
+            {interviewInfo?.userName?.[0] || "U"}
+          </div>
+          <h2 className="mt-3 text-lg font-semibold text-gray-700">
+            {interviewInfo?.userName || "You"}
+          </h2>
+        </div>
       </div>
     </div>
+  </div>
+
+  {/* Controls */}
+  <div className="flex gap-10 justify-center items-center mt-10">
+    <div className="group relative">
+      <Mic className="h-14 w-14 p-3 bg-white border border-gray-200 rounded-full shadow-md cursor-pointer hover:bg-blue-50 hover:scale-105 transition-all duration-200" />
+      <span className="absolute -bottom-7 left-1/2 transform -translate-x-1/2 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+        Mic
+      </span>
+    </div>
+
+    {loading ? (
+      <Loader2Icon className="h-14 w-14 text-red-500 animate-spin" />
+    ) : (
+      <div className="group relative">
+        <Phone
+          onClick={stopInterview}
+          className="h-14 w-14 p-3 text-white bg-red-500 rounded-full shadow-md cursor-pointer hover:bg-red-600 hover:scale-105 transition-all duration-200"
+        />
+        <span className="absolute -bottom-7 left-1/2 transform -translate-x-1/2 text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+          End Call
+        </span>
+      </div>
+    )}
+  </div>
+</div>
+
   );
 }
