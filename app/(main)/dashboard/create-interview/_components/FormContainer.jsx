@@ -1,104 +1,113 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+"use client";
 import { InterviewType } from "@/services/Constant";
 import { ArrowRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 export default function FormContainer({ onHandleInputChange, GoToNext }) {
   const [interviewType, setInterviewType] = useState([]);
+  const [jobPosition, setJobPosition] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const [duration, setDuration] = useState("");
 
   useEffect(() => {
-    if (interviewType) {
-      onHandleInputChange("type", interviewType);
-    }
+    onHandleInputChange("type", interviewType);
   }, [interviewType]);
 
+  useEffect(() => {
+    onHandleInputChange("jobPosition", jobPosition);
+  }, [jobPosition]);
 
-  const AddInterviewType = (title) => {
+  useEffect(() => {
+    onHandleInputChange("jobDescription", jobDescription);
+  }, [jobDescription]);
+
+  useEffect(() => {
+    onHandleInputChange("duration", duration);
+  }, [duration]);
+
+  const toggleInterviewType = (title) => {
     if (!interviewType.includes(title)) {
       setInterviewType((prev) => [...prev, title]);
     } else {
-      const result = interviewType.filter((item) => item !== title);
-      setInterviewType(result);
+      setInterviewType((prev) => prev.filter((item) => item !== title));
     }
   };
-  
 
   return (
-    <div className="p-5 bg-gray-100">
+    <div className="p-6 bg-white rounded-3xl shadow-md border border-gray-100 space-y-6">
+      {/* Job Position */}
       <div>
-        <h2 className="text-sm mt-5">Job Position</h2>
-        <Input
-          onChange={(event) =>
-            onHandleInputChange("jobPosition", event.target.value)
-          }
-          placeholder="e.g full stack developer"
-          className="mt-2"
+        <label className="text-gray-700 text-sm font-medium">Job Position</label>
+        <input
+          type="text"
+          value={jobPosition}
+          onChange={(e) => setJobPosition(e.target.value)}
+          placeholder="e.g., Full Stack Developer"
+          className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
         />
       </div>
 
+      {/* Job Description */}
       <div>
-        <h2 className="text-sm mt-5">Job Descriptioin</h2>
-        <Textarea
-          onChange={(event) =>
-            onHandleInputChange("jobDescription", event.target.value)
-          }
-          placeholder="e.g enter job description"
-          className="mt-5"
+        <label className="text-gray-700 text-sm font-medium">Job Description</label>
+        <textarea
+          value={jobDescription}
+          onChange={(e) => setJobDescription(e.target.value)}
+          placeholder="Enter job description"
+          rows={4}
+          className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 resize-none"
         />
       </div>
 
+      {/* Interview Duration */}
       <div>
-        <h2 className="text-sm mt-5">Interview Duration</h2>
-        <Select
-          onValueChange={(value) => onHandleInputChange("duration", value)}
+        <label className="text-gray-700 text-sm font-medium">Interview Duration</label>
+        <br />
+        <select
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+          className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select Duration" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="5">5 Minutes</SelectItem>
-            <SelectItem value="15">15 Minutes</SelectItem>
-            <SelectItem value="30">30 Minutes</SelectItem>
-            <SelectItem value="45">45 Minutes</SelectItem>
-            <SelectItem value="60">60 Minutes</SelectItem>
-          </SelectContent>
-        </Select>
+          <option value="">Select Duration</option>
+          <option value="5">5 Minutes</option>
+          <option value="15">15 Minutes</option>
+          <option value="30">30 Minutes</option>
+          <option value="45">45 Minutes</option>
+          <option value="60">60 Minutes</option>
+        </select>
       </div>
 
+      {/* Interview Type */}
       <div>
-        <h2 className="text-sm mt-5">Interview type</h2>
-
-        <div className="flex gap-3 flex-wrap mt-2 justify-center items-center">
+        <label className="text-gray-700 text-sm font-medium">Interview Type</label>
+        <div className="flex gap-3 flex-wrap mt-2">
           {InterviewType.map((type, index) => (
-            <div
+            <button
               key={index}
-              className={`flex gap-2 p-1 px-2 items-center bg-blue-50 rounded border border-gray-300 hover:bg-secondary 
+              type="button"
+              onClick={() => toggleInterviewType(type.title)}
+              className={`flex items-center gap-2 px-3 py-2 border rounded-lg text-sm transition 
                 ${
-                  interviewType.includes(type.title) &&
-                  "bg-blue-100 text-primary"
+                  interviewType.includes(type.title)
+                    ? "bg-blue-100 border-blue-400 text-blue-700"
+                    : "bg-blue-50 border-gray-300 hover:bg-blue-100 text-gray-700"
                 }`}
-              onClick={() => AddInterviewType(type.title)}
             >
-              <type.icon />
+              <type.icon className="w-4 h-4" />
               <span>{type.title}</span>
-            </div>
+            </button>
           ))}
         </div>
       </div>
 
-      <div className="flex justify-end" onClick={() => GoToNext()}>
-      <Button className="mt-5 flex justify-end">
-        Generate Question <ArrowRight />
-      </Button>
+      {/* Next Button */}
+      <div className="flex justify-end">
+        <button
+          onClick={GoToNext}
+          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-lg font-medium transition"
+        >
+          Generate Questions <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );

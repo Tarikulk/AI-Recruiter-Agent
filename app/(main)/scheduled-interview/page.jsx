@@ -1,7 +1,6 @@
 "use client";
 
-import { useUser } from "@/app/provider";
-import { Button } from "@/components/ui/button";
+import { useUser } from "@/app/provider"; 
 import { supabase } from "@/services/supabaseClient";
 import { Video } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -40,7 +39,9 @@ export default function ScheduledInterview() {
         <div className="p-5 flex flex-col gap-3 items-center bg-gray-100">
           <Video className="h-10 w-10 text-primary" />
           <h2>You don't have any interview created!</h2>
-          <Button>Create new interview</Button>
+          <button className="mt-3 bg-blue-600 text-white px-6 py-2 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-200">
+            Create new interview
+          </button>
         </div>
       )}
 

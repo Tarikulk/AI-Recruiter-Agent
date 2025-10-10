@@ -1,17 +1,25 @@
-import React from 'react'
+import React from "react";
 
-export default function QuestionListContainer({questionList}) {
+export default function QuestionListContainer({ questionList }) {
   return (
-    <div> 
-        <h2 className="font-bold text-lg">Generated Interview Questions</h2>
-          <div className="p-5 border border-gray-300 rounded-2xl">
-            {questionList.map((item, index) => (
-              <div key={index} className="p-3 border border-gray-200">
-                <h2 className="font-medium">{item.question}</h2>
-                <h2>Type: {item?.type}</h2>
-              </div>
-            ))}
+    <div className="mt-6">
+      <h2 className="font-bold text-2xl text-gray-800 mb-4">
+        Generated Interview Questions
+      </h2>
+
+      <div className="flex flex-col gap-4">
+        {questionList.map((item, index) => (
+          <div
+            key={index}
+            className="p-4 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow duration-200"
+          >
+            <h3 className="font-semibold text-gray-800 mb-1">
+              {index + 1}. {item.question}
+            </h3>
+            <p className="text-gray-500 text-sm">Type: {item?.type}</p>
           </div>
+        ))}
+      </div>
     </div>
-  )
+  );
 }

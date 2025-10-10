@@ -49,7 +49,7 @@ export default function CreateInterview() {
 
   return (
     <div className="mt-10 px-10 md:px-24 lg:px-44 xl:px-66">
-      <div className="flex gap-5">
+      <div className="flex items-center gap-5">
         <ArrowLeft onClick={() => router.back()} className="cursor-pointer" />
         <h2 className="font-bold text-2xl">Create new interview</h2>
       </div>
@@ -62,7 +62,7 @@ export default function CreateInterview() {
       ) : step == 2 ? (
         <QuestionList formData={formData} onCreateLink={(interview_id)=> onCreateLink(interview_id)}/>
       ) : null}{" "}
-      :{step === 3 ? <InterviewLink interview_id={interviewId} formData={formData} /> : null}
+      {step === 3 ? <InterviewLink interview_id={interviewId} formData={formData} /> : null}
     </div>
   );
 }
